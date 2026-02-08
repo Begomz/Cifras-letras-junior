@@ -18,10 +18,7 @@ body {
   text-align: center;
 }
 
-h1 {
-  font-size: 3vw;
-  margin-bottom: 20px;
-}
+h1 { font-size: 3vw; }
 
 .panel {
   background: white;
@@ -31,9 +28,9 @@ h1 {
 }
 
 button {
-  font-size: 2vw;
-  padding: 20px 30px;
-  margin: 15px;
+  font-size: 1.8vw;
+  padding: 18px 28px;
+  margin: 12px;
   border-radius: 25px;
   border: none;
   background: #4caf50;
@@ -41,14 +38,14 @@ button {
   cursor: pointer;
 }
 
-button:hover {
-  background: #43a047;
+button:hover { background: #43a047; }
+
+.niveles button {
+  background: #6a1b9a;
 }
 
-.botones-tiempo {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
+.niveles button.activo {
+  background: #9c27b0;
 }
 
 .botones-tiempo button {
@@ -85,7 +82,6 @@ button:hover {
   border-radius: 20px;
 }
 
-/* ===== PIE DE AUTORÍA ===== */
 footer {
   margin-top: 40px;
   padding: 20px;
@@ -97,9 +93,7 @@ footer {
   gap: 20px;
 }
 
-footer img {
-  height: 60px;
-}
+footer img { height: 60px; }
 </style>
 </head>
 
@@ -109,7 +103,16 @@ footer img {
 
 <h1>🎮 Cifras y Letras Junior</h1>
 
-<!-- TEMPORIZADOR -->
+<!-- NIVELES -->
+<div class="panel niveles">
+  <h2>🎚️ Nivel</h2>
+  <button onclick="cambiarNivel(3)">3.º</button>
+  <button onclick="cambiarNivel(4)">4.º</button>
+  <button onclick="cambiarNivel(5)" class="activo">5.º</button>
+  <button onclick="cambiarNivel(6)">6.º</button>
+</div>
+
+<!-- TIEMPO -->
 <div class="panel">
   <h2>⏱️ Tiempo</h2>
   <div class="botones-tiempo">
@@ -117,7 +120,7 @@ footer img {
     <button onclick="ajustarTiempo(90)">90 s</button>
     <button onclick="ajustarTiempo(120)">120 s</button>
   </div>
-  <div id="tiempo">60</div>
+  <div id="tiempo">90</div>
   <button onclick="iniciar()">▶️ Iniciar</button>
 </div>
 
@@ -140,7 +143,6 @@ footer img {
   <div class="solucion" id="solCifras"></div>
 </div>
 
-<!-- PIE DE PÁGINA -->
 <footer>
   <img src="logo.png" alt="Logo del recurso">
   <div>
@@ -151,12 +153,28 @@ footer img {
 
 </div>
 
-<!-- DICCIONARIO -->
 <script src="diccionario_escolar.js"></script>
 
 <script>
-/* ===== TEMPORIZADOR ===== */
-let tiempo = 60;
+/* ========= CONFIGURACIÓN POR NIVEL ========= */
+let nivel = 5;
+
+const configNivel = {
+  3: { minPalabra: 4, ops: 2 },
+  4: { minPalabra: 5, ops: 2 },
+  5: { minPalabra: 6, ops: 3 },
+  6: { minPalabra: 7, ops: 4 }
+};
+
+function cambiarNivel(n) {
+  nivel = n;
+  document.querySelectorAll(".niveles button")
+    .forEach(b => b.classList.remove("activo"));
+  event.target.classList.add("activo");
+}
+
+/* ========= TEMPORIZADOR ========= */
+let tiempo = 90;
 let intervalo;
 
 function iniciar() {
@@ -173,26 +191,24 @@ function ajustarTiempo(t) {
   document.getElementById("tiempo").textContent = tiempo;
 }
 
-/* ===== LETRAS (SIEMPRE HAY PALABRA) ===== */
+/* ========= LETRAS ========= */
 let letrasActuales = [];
 
 function generarLetras() {
-  letrasActuales = [];
   const total = 9;
+  const min = configNivel[nivel].minPalabra;
 
-  const longitudes = Object.keys(DICCIONARIO_ESCOLAR)
+  const posibles = Object.keys(DICCIONARIO_ESCOLAR)
     .map(n => parseInt(n))
-    .filter(n => n <= total);
+    .filter(n => n >= min && n <= total);
 
-  const longitudElegida =
-    longitudes[Math.floor(Math.random() * longitudes.length)];
-
-  const palabraBase =
-    DICCIONARIO_ESCOLAR[longitudElegida][
-      Math.floor(Math.random() * DICCIONARIO_ESCOLAR[longitudElegida].length)
+  const len = posibles[Math.floor(Math.random()*posibles.length)];
+  const palabra =
+    DICCIONARIO_ESCOLAR[len][
+      Math.floor(Math.random()*DICCIONARIO_ESCOLAR[len].length)
     ].toUpperCase();
 
-  letrasActuales = palabraBase.split("");
+  letrasActuales = palabra.split("");
 
   const vocales = "AEIOU";
   const consonantes = "BCDFGHJKLMNPRSTL";
@@ -200,16 +216,12 @@ function generarLetras() {
   while (letrasActuales.length < total) {
     letrasActuales.push(
       Math.random() < 0.45
-        ? vocales[Math.floor(Math.random() * vocales.length)]
-        : consonantes[Math.floor(Math.random() * consonantes.length)]
+        ? vocales[Math.floor(Math.random()*vocales.length)]
+        : consonantes[Math.floor(Math.random()*consonantes.length)]
     );
   }
 
-  for (let i = letrasActuales.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [letrasActuales[i], letrasActuales[j]] =
-      [letrasActuales[j], letrasActuales[i]];
-  }
+  letrasActuales.sort(() => Math.random() - 0.5);
 
   document.getElementById("letras").innerHTML =
     letrasActuales.map(l => `<span>${l}</span>`).join("");
@@ -218,17 +230,17 @@ function generarLetras() {
 }
 
 function mostrarSolucionLetras() {
-  for (let len = 9; len >= 3; len--) {
+  for (let len = 9; len >= configNivel[nivel].minPalabra; len--) {
     const lista = DICCIONARIO_ESCOLAR[len] || [];
     for (let palabra of lista) {
-      let disponibles = letrasActuales.slice();
-      let valida = true;
+      let disp = letrasActuales.slice();
+      let ok = true;
       for (let c of palabra.toUpperCase()) {
-        const i = disponibles.indexOf(c);
-        if (i === -1) { valida = false; break; }
-        disponibles.splice(i, 1);
+        let i = disp.indexOf(c);
+        if (i === -1) { ok = false; break; }
+        disp.splice(i,1);
       }
-      if (valida) {
+      if (ok) {
         document.getElementById("solLetras").textContent =
           "Palabra posible: " + palabra.toUpperCase();
         document.getElementById("solLetras").style.display = "block";
@@ -238,34 +250,34 @@ function mostrarSolucionLetras() {
   }
 }
 
-/* ===== CIFRAS (SIEMPRE HAY SOLUCIÓN) ===== */
+/* ========= CIFRAS ========= */
 let numerosActuales = [];
 let objetivo = 0;
 let solucionCifras = "";
 
 function generarCifras() {
-  const grandes = [25, 50, 75, 100];
-  const pequenos = [1,2,3,4,5,6,7,8,9,10];
+  const p = [1,2,3,4,5,6,7,8,9,10];
+  const g = [25,50,75,100];
 
-  let a = pequenos[Math.floor(Math.random()*pequenos.length)];
-  let b = pequenos[Math.floor(Math.random()*pequenos.length)];
-  let c = grandes[Math.floor(Math.random()*grandes.length)];
+  let a = p[Math.floor(Math.random()*10)];
+  let b = p[Math.floor(Math.random()*10)];
+  let c = g[Math.floor(Math.random()*4)];
+  let d = p[Math.floor(Math.random()*10)] || 1;
 
-  objetivo = a * b + c;
-  solucionCifras = `(${a} × ${b}) + ${c}`;
+  let paso1 = a + b;
+  let paso2 = paso1 * c;
+  let paso3 = paso2 - d;
 
-  numerosActuales = [a, b, c];
-  while (numerosActuales.length < 6) {
-    numerosActuales.push(
-      pequenos[Math.floor(Math.random()*pequenos.length)]
-    );
-  }
+  if (paso3 % d !== 0) paso3 += d - (paso3 % d);
 
-  for (let i = numerosActuales.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [numerosActuales[i], numerosActuales[j]] =
-      [numerosActuales[j], numerosActuales[i]];
-  }
+  objetivo = paso3 / d;
+
+  solucionCifras = `((${a} + ${b}) × ${c} − ${d}) ÷ ${d} = ${objetivo}`;
+
+  numerosActuales = [a,b,c,d,
+    p[Math.floor(Math.random()*10)],
+    g[Math.floor(Math.random()*4)]
+  ].sort(() => Math.random() - 0.5);
 
   document.getElementById("numeros").innerHTML =
     numerosActuales.map(n => `<span>${n}</span>`).join("");
@@ -276,7 +288,7 @@ function generarCifras() {
 
 function mostrarSolucionCifras() {
   document.getElementById("solCifras").textContent =
-    "Solución exacta: " + solucionCifras + " = " + objetivo;
+    "Solución posible: " + solucionCifras;
   document.getElementById("solCifras").style.display = "block";
 }
 </script>
