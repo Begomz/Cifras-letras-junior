@@ -5,7 +5,6 @@
 <title>Cifras y Letras Junior</title>
 
 <style>
-/* ================== BASE ================== */
 body {
   margin: 0;
   background: #eef2f5;
@@ -20,11 +19,10 @@ body {
 }
 
 h1 {
-  font-size: 3.5vw;
+  font-size: 3vw;
   margin-bottom: 20px;
 }
 
-/* ================== PANELES ================== */
 .panel {
   background: white;
   border-radius: 30px;
@@ -32,10 +30,9 @@ h1 {
   margin-bottom: 30px;
 }
 
-/* ================== BOTONES ================== */
 button {
-  font-size: 2.2vw;
-  padding: 22px 35px;
+  font-size: 2vw;
+  padding: 20px 30px;
   margin: 15px;
   border-radius: 25px;
   border: none;
@@ -51,57 +48,44 @@ button:hover {
 .botones-tiempo {
   display: flex;
   justify-content: center;
-  gap: 50px;
-  margin: 25px 0;
+  gap: 40px;
 }
 
 .botones-tiempo button {
   background: #1976d2;
-  font-size: 2.5vw;
 }
 
-/* ================== TEMPORIZADOR ================== */
 #tiempo {
   font-size: 6vw;
   color: #2e7d32;
   margin: 20px;
 }
 
-/* ================== CONJUNTOS ================== */
 .conjunto {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 30px;
-  margin: 30px 0;
+  gap: 25px;
+  margin: 25px 0;
 }
 
 .conjunto span {
   font-size: 4vw;
-  padding: 22px 30px;
+  padding: 20px 28px;
   background: #e3f2fd;
-  border-radius: 25px;
+  border-radius: 20px;
 }
 
-/* ================== SOLUCIONES ================== */
 .solucion {
   display: none;
-  margin-top: 25px;
+  margin-top: 20px;
   padding: 20px;
   font-size: 2vw;
   background: #fff3cd;
   border-radius: 20px;
 }
 
-/* ================== NIVEL ================== */
-.niveles button {
-  background: #455a64;
-}
-
-.niveles button:hover {
-  background: #37474f;
-}
-/* ====== AUTORÍA ====== */
+/* ===== PIE DE AUTORÍA ===== */
 footer {
   margin-top: 40px;
   padding: 20px;
@@ -115,33 +99,15 @@ footer {
 
 footer img {
   height: 60px;
-  opacity: 0.85;
 }
-
 </style>
 </head>
-<footer>
-  <img src="logo.png" alt="Propiedad del material">
-  <div>
-    <strong>Begoña Mella</strong><br>
-    Material educativo de uso docente
-  </div>
-</footer>
 
 <body>
 
 <div id="app">
 
 <h1>🎮 Cifras y Letras Junior</h1>
-
-<!-- NIVEL -->
-<div class="panel niveles">
-  <h2>🎚️ Nivel</h2>
-  <button onclick="cambiarNivel(3)">3.º Primaria</button>
-  <button onclick="cambiarNivel(4)">4.º Primaria</button>
-  <button onclick="cambiarNivel(5)">5.º Primaria</button>
-  <button onclick="cambiarNivel(6)">6.º Primaria</button>
-</div>
 
 <!-- TEMPORIZADOR -->
 <div class="panel">
@@ -153,7 +119,6 @@ footer img {
   </div>
   <div id="tiempo">60</div>
   <button onclick="iniciar()">▶️ Iniciar</button>
-  <button onclick="reiniciar()">🔄 Reiniciar</button>
 </div>
 
 <!-- LETRAS -->
@@ -175,32 +140,25 @@ footer img {
   <div class="solucion" id="solCifras"></div>
 </div>
 
+<!-- PIE DE PÁGINA -->
+<footer>
+  <img src="logo.png" alt="Logo del recurso">
+  <div>
+    <strong>Begoña Mella</strong><br>
+    Material educativo de uso docente
+  </div>
+</footer>
+
 </div>
 
-<!-- DICCIONARIO EXTERNO -->
+<!-- DICCIONARIO -->
 <script src="diccionario_escolar.js"></script>
 
 <script>
-/* ================== CONFIGURACIÓN ================== */
-let nivel = 5;
+/* ===== TEMPORIZADOR ===== */
 let tiempo = 60;
 let intervalo;
 
-const configNivel = {
-  3: { letras: 8, min: 3, max: 5, tiempo: 90 },
-  4: { letras: 9, min: 3, max: 6, tiempo: 90 },
-  5: { letras: 9, min: 4, max: 7, tiempo: 60 },
-  6: { letras: 9, min: 4, max: 9, tiempo: 60 }
-};
-
-const configCifras = {
-  3: { grandes: [10,25], ops: ["+","-","*"], profundidad: 2 },
-  4: { grandes: [10,25,50], ops: ["+","-","*","/"], profundidad: 3 },
-  5: { grandes: [10,25,50,75], ops: ["+","-","*","/"], profundidad: 3 },
-  6: { grandes: [10,25,50,75,100], ops: ["+","-","*","/"], profundidad: 4 }
-};
-
-/* ================== TEMPORIZADOR ================== */
 function iniciar() {
   clearInterval(intervalo);
   intervalo = setInterval(() => {
@@ -210,37 +168,47 @@ function iniciar() {
   }, 1000);
 }
 
-function reiniciar() {
-  clearInterval(intervalo);
-  document.getElementById("tiempo").textContent = tiempo;
-}
-
 function ajustarTiempo(t) {
   tiempo = t;
   document.getElementById("tiempo").textContent = tiempo;
 }
 
-function cambiarNivel(n) {
-  nivel = n;
-  tiempo = configNivel[n].tiempo;
-  document.getElementById("tiempo").textContent = tiempo;
-}
-
-/* ================== LETRAS ================== */
+/* ===== LETRAS (SIEMPRE HAY PALABRA) ===== */
 let letrasActuales = [];
 
 function generarLetras() {
   letrasActuales = [];
+  const total = 9;
+
+  const longitudes = Object.keys(DICCIONARIO_ESCOLAR)
+    .map(n => parseInt(n))
+    .filter(n => n <= total);
+
+  const longitudElegida =
+    longitudes[Math.floor(Math.random() * longitudes.length)];
+
+  const palabraBase =
+    DICCIONARIO_ESCOLAR[longitudElegida][
+      Math.floor(Math.random() * DICCIONARIO_ESCOLAR[longitudElegida].length)
+    ].toUpperCase();
+
+  letrasActuales = palabraBase.split("");
+
   const vocales = "AEIOU";
   const consonantes = "BCDFGHJKLMNPRSTL";
-  const total = configNivel[nivel].letras;
 
   while (letrasActuales.length < total) {
     letrasActuales.push(
-      Math.random() < 0.4
-        ? vocales[Math.floor(Math.random()*vocales.length)]
-        : consonantes[Math.floor(Math.random()*consonantes.length)]
+      Math.random() < 0.45
+        ? vocales[Math.floor(Math.random() * vocales.length)]
+        : consonantes[Math.floor(Math.random() * consonantes.length)]
     );
+  }
+
+  for (let i = letrasActuales.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [letrasActuales[i], letrasActuales[j]] =
+      [letrasActuales[j], letrasActuales[i]];
   }
 
   document.getElementById("letras").innerHTML =
@@ -249,100 +217,66 @@ function generarLetras() {
   document.getElementById("solLetras").style.display = "none";
 }
 
-function palabraMasLarga(letras) {
-  const { min, max } = configNivel[nivel];
-
-  for (let len = max; len >= min; len--) {
+function mostrarSolucionLetras() {
+  for (let len = 9; len >= 3; len--) {
     const lista = DICCIONARIO_ESCOLAR[len] || [];
     for (let palabra of lista) {
-      let disponibles = letras.slice();
+      let disponibles = letrasActuales.slice();
       let valida = true;
       for (let c of palabra.toUpperCase()) {
         const i = disponibles.indexOf(c);
         if (i === -1) { valida = false; break; }
-        disponibles.splice(i,1);
+        disponibles.splice(i, 1);
       }
-      if (valida) return palabra;
+      if (valida) {
+        document.getElementById("solLetras").textContent =
+          "Palabra posible: " + palabra.toUpperCase();
+        document.getElementById("solLetras").style.display = "block";
+        return;
+      }
     }
   }
-  return "No hay palabra válida";
 }
 
-function mostrarSolucionLetras() {
-  const p = palabraMasLarga(letrasActuales);
-  document.getElementById("solLetras").textContent =
-    "Palabra más larga posible: " + p.toUpperCase();
-  document.getElementById("solLetras").style.display = "block";
-}
-
-/* ================== CIFRAS ================== */
+/* ===== CIFRAS (SIEMPRE HAY SOLUCIÓN) ===== */
 let numerosActuales = [];
 let objetivo = 0;
+let solucionCifras = "";
 
 function generarCifras() {
-  numerosActuales = [];
-  const pequeños = [1,2,3,4,5,6,7,8,9,10];
-  const grandes = configCifras[nivel].grandes;
+  const grandes = [25, 50, 75, 100];
+  const pequenos = [1,2,3,4,5,6,7,8,9,10];
 
-  for (let i=0;i<4;i++)
-    numerosActuales.push(pequeños[Math.floor(Math.random()*pequeños.length)]);
-  for (let i=0;i<2;i++)
-    numerosActuales.push(grandes[Math.floor(Math.random()*grandes.length)]);
+  let a = pequenos[Math.floor(Math.random()*pequenos.length)];
+  let b = pequenos[Math.floor(Math.random()*pequenos.length)];
+  let c = grandes[Math.floor(Math.random()*grandes.length)];
 
-  objetivo = Math.floor(Math.random()*400)+100;
+  objetivo = a * b + c;
+  solucionCifras = `(${a} × ${b}) + ${c}`;
+
+  numerosActuales = [a, b, c];
+  while (numerosActuales.length < 6) {
+    numerosActuales.push(
+      pequenos[Math.floor(Math.random()*pequenos.length)]
+    );
+  }
+
+  for (let i = numerosActuales.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [numerosActuales[i], numerosActuales[j]] =
+      [numerosActuales[j], numerosActuales[i]];
+  }
 
   document.getElementById("numeros").innerHTML =
     numerosActuales.map(n => `<span>${n}</span>`).join("");
+
   document.getElementById("objetivo").textContent = objetivo;
   document.getElementById("solCifras").style.display = "none";
 }
 
-function resolverCifras(nums, obj) {
-  let mejor = { valor: nums[0], expr: nums[0].toString() };
-  const cfg = configCifras[nivel];
-
-  function buscar(lista, exprs, prof) {
-    if (prof > cfg.profundidad) return;
-
-    for (let i=0;i<lista.length;i++) {
-      for (let j=i+1;j<lista.length;j++) {
-        const a=lista[i], b=lista[j];
-        const ea=exprs[i], eb=exprs[j];
-
-        const restoN = lista.filter((_,k)=>k!==i&&k!==j);
-        const restoE = exprs.filter((_,k)=>k!==i&&k!==j);
-
-        const ops=[];
-
-        if (cfg.ops.includes("+")) ops.push({v:a+b,e:`(${ea}+${eb})`});
-        if (cfg.ops.includes("*")) ops.push({v:a*b,e:`(${ea}×${eb})`});
-        if (cfg.ops.includes("-")) {
-          ops.push({v:a-b,e:`(${ea}-${eb})`});
-          ops.push({v:b-a,e:`(${eb}-${ea})`});
-        }
-        if (cfg.ops.includes("/")) {
-          if (b!==0 && a%b===0) ops.push({v:a/b,e:`(${ea}÷${eb})`});
-          if (a!==0 && b%a===0) ops.push({v:b/a,e:`(${eb}÷${ea})`});
-        }
-
-        ops.forEach(op=>{
-          if (Math.abs(obj-op.v)<Math.abs(obj-mejor.valor))
-            mejor={valor:op.v,expr:op.e};
-
-          buscar([...restoN,op.v],[...restoE,op.e],prof+1);
-        });
-      }
-    }
-  }
-
-  buscar(nums,nums.map(n=>n.toString()),1);
-  return mejor;
-}
-
 function mostrarSolucionCifras() {
-  const r = resolverCifras(numerosActuales,objetivo);
   document.getElementById("solCifras").textContent =
-    "Solución posible: " + r.expr + " = " + r.valor;
+    "Solución exacta: " + solucionCifras + " = " + objetivo;
   document.getElementById("solCifras").style.display = "block";
 }
 </script>
